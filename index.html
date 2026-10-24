@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="gate-bootstrap.js"></script>
+  <title>Vendas IA — Maestros da IA</title>
+  <meta name="description" content="Arraste o relatório de vendas da Hotmart, Kiwify ou Eduzz e receba faturamento bruto e líquido, reembolsos, conversão de Pix e boleto, mix de produtos e origens, e a análise pronta para decidir o próximo mês.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://gate.maestrosdaia.com">
+  <link rel="preload" href="https://gate.maestrosdaia.com/v1/membership-gate.js" as="script">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='3' fill='%23fcefe2'/%3E%3Cpath d='M4 6h24M4 26h24' stroke='%231d1914' stroke-width='1.6'/%3E%3Cpath d='M5 21l6-6 5 4 10-10' stroke='%238f1d3a' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M21 9h5v5' stroke='%238f1d3a' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body>
+
+  <!-- ═══════════ MEMBERSHIP GATE ═══════════ -->
+  <div id="gate-screen" class="screen active">
+    <div class="paper-wrap">
+      <header class="front-mast">
+        <p class="mh-top"><span>Edição para membros</span><span>Comunidade Maestros da IA</span></p>
+        <p class="mh-title">Vendas IA</p>
+        <p class="mh-sub"><span>O caderno de vendas do seu negócio</span><span>Hotmart · Kiwify · Eduzz · Monetizze · Ticto</span></p>
+      </header>
+
+      <div class="front-grid">
+        <article class="front-story">
+          <p class="kicker">Mercado · Seu negócio</p>
+          <h1 class="front-headline">Do relatório da plataforma ao fechamento do mês, sem planilha manual</h1>
+          <p class="front-dek">Arraste o export de vendas. A ferramenta calcula faturamento bruto e líquido, reembolsos, conversão de Pix e boleto, o que cada produto e cada origem trouxe — e a IA escreve a análise a partir desses números.</p>
+          <table class="front-table" aria-label="Exemplo de quadro de indicadores">
+            <caption>Quadro de indicadores · exemplo</caption>
+            <tbody>
+              <tr><th scope="row">Faturamento bruto</th><td>R$ 243.528</td><td class="up">▲ 36,4%</td></tr>
+              <tr><th scope="row">Ticket médio</th><td>R$ 346,41</td><td class="down">▼ 6,5%</td></tr>
+              <tr><th scope="row">Reembolso</th><td>6,4%</td><td class="down">▲ 0,8 p.p.</td></tr>
+              <tr><th scope="row">Pix pagos / gerados</th><td>81,2%</td><td class="flat">■ 0,1 p.p.</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <aside class="subscriber-box gate-card">
+          <p class="box-kicker">Área do assinante</p>
+          <h2 class="box-title">Entre com os dados da sua compra</h2>
+          <p class="community-badge">Exclusivo para membros da Comunidade Maestros da IA</p>
+
+          <form id="gate-form" class="gate-form" novalidate>
+            <div class="form-group">
+              <label for="gate-email">Seu e-mail cadastrado</label>
+              <input type="email" id="gate-email" placeholder="seu@email.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+              <label for="gate-phone">Seu WhatsApp (com DDD)</label>
+              <input type="tel" id="gate-phone" placeholder="11999999999" autocomplete="tel">
+            </div>
+            <p class="form-hint">Basta um dos dois — e-mail <em>ou</em> WhatsApp da sua compra.</p>
+            <button type="submit" id="gate-submit" class="btn-primary btn-block">
+              <span class="btn-text">Verificar acesso</span>
+              <span class="btn-loading">Verificando...</span>
+            </button>
+            <p id="gate-error" class="error-message" role="alert"></p>
+            <p class="gate-checking"><span class="gate-checking-dot" aria-hidden="true"></span>Conferindo o seu acesso…</p>
+          </form>
+
+          <p class="gate-footer">Ainda não é membro? <a href="https://comunidade.maestrosdaia.com" target="_blank" rel="noopener noreferrer">Conheça a Comunidade Maestros da IA</a></p>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ API KEY SETUP ═══════════ -->
+  <div id="key-screen" class="screen">
+    <div class="paper-wrap narrow">
+      <div class="subscriber-box key-card">
+        <p class="box-kicker">Antes de abrir o caderno</p>
+        <h2 class="box-title">Conecte sua chave de IA</h2>
+        <p class="lead-p">A ferramenta usa a <strong>sua própria chave</strong> (BYOK). Ela fica salva só neste navegador e nunca é enviada para os nossos servidores. Todas as contas são feitas aqui no navegador; a IA recebe <strong>apenas os números agregados</strong> do período — nenhum nome, e-mail ou telefone de comprador.</p>
+
+        <form id="key-inputs" class="key-inputs" novalidate></form>
+
+        <div class="field">
+          <label for="key-model-select">Modelo de IA</label>
+          <select id="key-model-select"></select>
+          <p class="field-note">Com uma chave da OpenRouter você escolhe entre Claude, GPT, Gemini, DeepSeek e os modelos em alta — tudo com a mesma chave. Uma análise custa centavos.</p>
+        </div>
+
+        <div class="key-actions">
+          <button id="key-continue" class="btn-primary" disabled>Abrir o caderno de vendas</button>
+          <button id="key-skip" class="btn-secondary">Pular por enquanto</button>
+        </div>
+        <p class="field-note">Sem chave você já vê o painel completo; a chave só é necessária para a análise escrita pela IA.</p>
+
+        <details class="key-info">
+          <summary>Como consigo uma chave da OpenRouter?</summary>
+          <div class="key-info-content">
+            <p>Crie uma conta em <code>openrouter.ai</code>, abra <code>openrouter.ai/keys</code> e clique em <em>Create Key</em>.</p>
+            <p>Adicione créditos (a partir de US$ 5) e cole a chave <code>sk-or-...</code> aqui.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ MAIN APPLICATION ═══════════ -->
+  <div id="app-screen" class="screen">
+    <header class="app-header">
+      <div class="header-left">
+        <svg class="brandmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="3" fill="#fcefe2"/><path d="M4 6h24M4 26h24" stroke="#1d1914" stroke-width="1.6"/><path d="M5 21l6-6 5 4 10-10" stroke="#8f1d3a" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 9h5v5" stroke="#8f1d3a" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="header-titles">
+          <p class="app-title">Vendas IA</p>
+          <span class="period-pill" id="period-pill" hidden></span>
+        </div>
+      </div>
+      <div class="header-right">
+        <a href="about.html" class="btn-icon" title="Sobre esta ferramenta" aria-label="Sobre esta ferramenta">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </a>
+        <button id="manage-keys-btn" class="btn-icon" title="Gerenciar chave de IA" aria-label="Gerenciar chave de IA">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </button>
+        <button id="logout-btn" class="btn-icon" title="Sair" aria-label="Sair">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Seções">
+      <button class="tab on" role="tab" id="tab-planilha" data-tab="planilha" aria-selected="true" aria-controls="pane-planilha"><span class="tab-n">1</span><span class="tab-t">Planilha</span></button>
+      <button class="tab" role="tab" id="tab-painel" data-tab="painel" aria-selected="false" aria-controls="pane-painel"><span class="tab-n">2</span><span class="tab-t">Painel</span></button>
+      <button class="tab" role="tab" id="tab-relatorio" data-tab="relatorio" aria-selected="false" aria-controls="pane-relatorio"><span class="tab-n">3</span><span class="tab-t">Análise e relatório</span></button>
+      <button class="tab tab-lib" role="tab" id="tab-arquivo" data-tab="arquivo" aria-selected="false" aria-controls="pane-arquivo"><span class="tab-n">≡</span><span class="tab-t">Períodos salvos</span></button>
+    </nav>
+
+    <main class="app-main">
+
+      <!-- ── 1. PLANILHA ── -->
+      <section class="pane on" id="pane-planilha" role="tabpanel" aria-labelledby="tab-planilha">
+        <div class="pane-head">
+          <p class="kicker">Passo 1</p>
+          <h2 class="pane-title">Traga o relatório de vendas da plataforma</h2>
+          <p class="pane-sub">Exporte as vendas do período em .CSV ou .XLSX (Hotmart: <em>Vendas → Histórico de vendas → Exportar</em>; Kiwify: <em>Vendas → Exportar</em>) e solte aqui. Inclua aprovadas, reembolsadas, expiradas e pendentes — é assim que a ferramenta calcula reembolso e conversão.</p>
+        </div>
+
+        <div class="intake" id="intake">
+          <div class="sheet">
+            <label class="dropzone" id="dropzone" for="file-input">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><polyline points="8 17 11 14 13 16 16 12"/></svg>
+              <span class="dz-main">Solte o relatório aqui ou clique para escolher</span>
+              <span class="dz-sub">.CSV ou .XLSX · Hotmart · Kiwify · Eduzz · Monetizze · Ticto · Stripe · qualquer planilha de vendas · até 20 mil linhas</span>
+            </label>
+            <input type="file" id="file-input" accept=".csv,.tsv,.txt,.xlsx,.xls,text/csv,text/plain,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" class="sr-only">
+            <details class="paste-box">
+              <summary>Prefere colar? Copie as células da planilha (com a linha de títulos) e cole aqui</summary>
+              <textarea id="in-paste" rows="7" maxlength="4000000" aria-label="Colar planilha" placeholder="Data	Status	Produto	Valor&#10;30/09/2026 22:34	Aprovado	Curso Reels que Vendem	497,00"></textarea>
+              <button type="button" class="btn-secondary" id="paste-load">Ler a planilha colada</button>
+            </details>
+          </div>
+          <div class="sheet intake-side">
+            <h3 class="sheet-title">Sem arquivo à mão?</h3>
+            <p class="field-note">Carregue um export de exemplo (formato Hotmart, um mês com lançamento) e veja a ferramenta trabalhando.</p>
+            <button type="button" class="btn-secondary" id="example-btn">Carregar vendas de exemplo</button>
+            <hr class="rule">
+            <p class="field-note"><strong>Privacidade:</strong> o relatório é lido aqui no seu navegador. Nome, e-mail e telefone dos compradores nunca saem do seu computador nem vão para a IA — e não ficam salvos: o período guarda só os números.</p>
+          </div>
+        </div>
+        <p class="note warn" id="import-error" role="alert" hidden></p>
+
+        <div id="mapping" hidden>
+          <div class="sheet period-meta">
+            <div class="field">
+              <label for="in-nome">Nome do período</label>
+              <input type="text" id="in-nome" maxlength="100" placeholder="Ex.: Vendas de setembro — lançamento turma 7">
+            </div>
+            <p class="map-summary" id="map-summary"></p>
+            <p class="note" id="map-lost" hidden>As linhas que ficaram de fora não entram em nenhuma conta. Ajuste as colunas ou os status abaixo para incluí-las.</p>
+          </div>
+
+          <div id="map-live">
+            <div class="map-head">
+              <div>
+                <h3 class="sheet-title">Qual coluna é qual</h3>
+                <p class="field-note">A leitura foi automática. Confira as amostras e corrija o que precisar — cada mudança recalcula tudo na hora.</p>
+              </div>
+              <button type="button" class="btn-secondary btn-sm" id="map-ai">Pedir ajuda da IA para ler as colunas</button>
+            </div>
+            <p class="note warn" id="map-missing" hidden></p>
+            <p class="note warn" id="map-ai-error" role="alert" hidden></p>
+            <div class="field-list" id="field-list"></div>
+
+            <div class="status-block">
+              <h3 class="sheet-title">O que cada status significa</h3>
+              <p class="field-note">Cada plataforma escreve o status de um jeito. “Aprovada” entra no faturamento; reembolso e chargeback entram na taxa de devolução; “não paga” e “pendente” formam o dinheiro que ficou na mesa.</p>
+              <p class="note" id="status-none" hidden>Sem coluna de status, todas as linhas contam como vendas aprovadas — reembolso e conversão não podem ser calculados.</p>
+              <div id="status-wrap"><div class="status-list" id="status-list"></div></div>
+            </div>
+          </div>
+
+          <div id="map-saved" hidden>
+            <h3 class="sheet-title">Leitura usada neste período</h3>
+            <p class="field-note">Por privacidade, a planilha original não fica salva — o período guarda só os números já normalizados. Para mudar a leitura das colunas ou baixar a lista de clientes, importe o arquivo de novo.</p>
+            <ul class="saved-map" id="map-saved-list"></ul>
+            <button type="button" class="btn-secondary" id="reimport">Importar o arquivo de novo</button>
+          </div>
+
+          <div class="pane-actions">
+            <button type="button" class="btn-ghost" id="reset-period">Trocar de planilha</button>
+            <button type="button" class="btn-primary" id="to-painel">Ver o painel</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 2. PAINEL ── -->
+      <section class="pane" id="pane-painel" role="tabpanel" aria-labelledby="tab-painel">
+        <div class="empty" id="dash-empty">
+          <p class="empty-title">O painel aparece depois da importação.</p>
+          <p>Importe o relatório de vendas para ver faturamento, reembolsos, conversão e mix.</p>
+          <button type="button" class="btn-secondary" data-goto="planilha">Ir para a planilha</button>
+        </div>
+        <div id="dash" hidden>
+          <div class="pane-head">
+            <p class="kicker">Passo 2 · todos os números contados linha a linha</p>
+            <h2 class="pane-title">Painel do período</h2>
+          </div>
+          <div class="ticker" id="ticker" aria-label="Indicadores principais"></div>
+          <div class="cmp-bar">
+            <div class="field">
+              <label for="cmp-select">Comparar com</label>
+              <select id="cmp-select"></select>
+            </div>
+            <p class="field-note" id="cmp-note"></p>
+          </div>
+          <div class="kp-board" id="kp-board"></div>
+          <div class="blocks" id="dash-blocks"></div>
+          <div class="pane-actions">
+            <button type="button" class="btn-primary" data-goto="relatorio">Escrever a análise e baixar o relatório</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 3. RELATÓRIO ── -->
+      <section class="pane" id="pane-relatorio" role="tabpanel" aria-labelledby="tab-relatorio">
+        <div class="empty" id="report-empty">
+          <p class="empty-title">Ainda não há período para analisar.</p>
+          <p>Importe o relatório de vendas primeiro.</p>
+          <button type="button" class="btn-secondary" data-goto="planilha">Ir para a planilha</button>
+        </div>
+        <div id="report-wrap" hidden>
+          <div class="sheet report-ctl">
+            <div class="report-ctl-row">
+              <div class="report-ctl-text">
+                <p class="kicker">Passo 3</p>
+                <h3 class="sheet-title">Análise escrita pela IA</h3>
+                <p class="field-note" id="report-hint">Leva de 15 a 60 segundos.</p>
+              </div>
+              <div class="field model-field">
+                <label for="model-select">Modelo de IA</label>
+                <select id="model-select"></select>
+              </div>
+              <div class="field model-field">
+                <label for="cmp-select-r">Comparar com</label>
+                <select id="cmp-select-r"></select>
+              </div>
+              <button type="button" class="btn-primary" id="summary-btn">Escrever a análise</button>
+            </div>
+            <p class="note warn" id="summary-error" role="alert" hidden></p>
+          </div>
+          <article class="report" id="report"></article>
+          <div class="export-bar">
+            <button type="button" class="btn-primary" id="dl-pdf">Salvar em PDF</button>
+            <button type="button" class="btn-secondary" id="dl-html">Baixar relatório (.html)</button>
+            <button type="button" class="btn-secondary" id="dl-png">Baixar capa do período (PNG)</button>
+            <button type="button" class="btn-secondary" id="dl-csv">Baixar vendas normalizadas (.csv)</button>
+            <button type="button" class="btn-secondary" id="dl-buyers" hidden>Baixar lista de clientes (.csv)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PERÍODOS SALVOS ── -->
+      <section class="pane" id="pane-arquivo" role="tabpanel" aria-labelledby="tab-arquivo">
+        <div class="pane-head">
+          <p class="kicker">Arquivo</p>
+          <h2 class="pane-title">Períodos salvos neste navegador</h2>
+          <p class="pane-sub">Cada importação vira um período com os números normalizados e a análise — sem nome, e-mail ou telefone de comprador. Use para comparar mês a mês ou lançamento a lançamento.</p>
+        </div>
+        <div class="pane-actions left">
+          <button type="button" class="btn-primary" id="new-period">Novo período</button>
+        </div>
+        <div class="archive" id="archive"></div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Vendas IA · <a href="https://comunidade.maestrosdaia.com" target="_blank" rel="noopener noreferrer">Comunidade Maestros da IA</a></p>
+      <p class="footer-links"><a href="about.html">Sobre</a><a href="privacy-policy.html">Política de Privacidade</a><a href="data-deletion.html">Excluir meus dados</a><button type="button" class="link-btn" id="wipe-local">Apagar dados deste navegador</button></p>
+    </footer>
+  </div>
+
+  <!-- Gerenciar chave -->
+  <div id="key-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="key-modal-title">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="key-modal-title">Chave de IA</h3>
+        <button id="modal-close" class="btn-icon" type="button" aria-label="Fechar">×</button>
+      </div>
+      <form id="modal-key-inputs" class="key-inputs" novalidate></form>
+      <div class="field">
+        <label for="model-select-modal">Modelo de IA</label>
+        <select id="model-select-modal"></select>
+      </div>
+      <div class="modal-actions">
+        <button id="modal-clear" class="btn-ghost" type="button">Apagar chave</button>
+        <button id="modal-save" class="btn-primary" type="button">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="config.js"></script>
+  <script src="kill-switch.js"></script>
+  <script src="rate-limiter.js"></script>
+  <script src="https://gate.maestrosdaia.com/v1/membership-gate.js"></script>
+  <script src="api-key-manager.js"></script>
+  <script src="feedback-widget.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
